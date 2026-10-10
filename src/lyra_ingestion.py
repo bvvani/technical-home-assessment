@@ -119,4 +119,3 @@ def ingest_all_groups(
     )
 
     return combined
-`
