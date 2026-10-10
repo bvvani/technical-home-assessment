@@ -37,9 +37,9 @@ from config.pipeline_config import (
     DELTA_SCHEMA,
 )
 
-# ---------------------------------------------------------------------------
+
 # Logging
-# ---------------------------------------------------------------------------
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,9 +49,9 @@ logging.basicConfig(
 logger = logging.getLogger("andromeda")
 
 
-# ---------------------------------------------------------------------------
+
 # Pipeline Runner
-# ---------------------------------------------------------------------------
+
 
 def run_pipeline(
     spark: SparkSession,
@@ -72,9 +72,9 @@ def run_pipeline(
     logger.info("Window hours   : %s", window_hours)
     logger.info("=" * 60)
 
-    # -----------------------------------------------------------------------
+    
     # Phase 1 - Lyra
-    # -----------------------------------------------------------------------
+    
 
     logger.info("[1/5] LYRA - Ingesting data")
 
@@ -87,9 +87,9 @@ def run_pipeline(
 
     logger.info("Raw records ingested: %d", raw_count)
 
-    # -----------------------------------------------------------------------
+    
     # Phase 2 - Carina
-    # -----------------------------------------------------------------------
+    
 
     logger.info("[2/5] CARINA - Cleaning data")
 
@@ -99,9 +99,9 @@ def run_pipeline(
 
     logger.info("Cleaned records: %d", cleaned_count)
 
-    # -----------------------------------------------------------------------
+    
     # Phase 3 - Orion
-    # -----------------------------------------------------------------------
+    
 
     logger.info("[3/5] ORION - Computing statistics")
 
@@ -114,9 +114,9 @@ def run_pipeline(
 
     logger.info("Summary rows: %d", summary_count)
 
-    # -----------------------------------------------------------------------
+    
     # Phase 4 - Nova
-    # -----------------------------------------------------------------------
+    
 
     logger.info("[4/5] NOVA - Detecting anomalies")
 
@@ -128,9 +128,9 @@ def run_pipeline(
 
     logger.info("Anomalies detected: %d", anomaly_count)
 
-    # -----------------------------------------------------------------------
+    
     # Phase 5 - Nebula
-    # -----------------------------------------------------------------------
+    
 
     logger.info("[5/5] NEBULA - Persisting results")
 
@@ -219,9 +219,9 @@ def run_pipeline(
     }
 
 
-# ---------------------------------------------------------------------------
+
 # CLI
-# ---------------------------------------------------------------------------
+
 
 def parse_args(args=None):
     """Parse command line arguments."""
@@ -267,9 +267,9 @@ def parse_args(args=None):
     return parser.parse_args(args)
 
 
-# ---------------------------------------------------------------------------
+
 # Main Entry Point
-# ---------------------------------------------------------------------------
+
 
 def main():
     """Application entry point."""
