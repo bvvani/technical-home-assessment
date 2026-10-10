@@ -139,4 +139,3 @@ def get_anomalies_only(
     return enriched_df.filter(
         F.col("is_anomaly") == True
     )
-`
