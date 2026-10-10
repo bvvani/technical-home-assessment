@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 # 1. Null / Missing-Value Handling
-# ---------------------------------------------------------------------------
+
 
 def impute_missing_values(df: DataFrame) -> DataFrame:
     """Impute missing numeric values with per-turbine medians."""
@@ -89,9 +89,9 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
+
 # 2. Physical Range Validation
-# ---------------------------------------------------------------------------
+
 
 def validate_physical_ranges(df: DataFrame) -> DataFrame:
     """Remove physically impossible sensor readings."""
@@ -129,9 +129,9 @@ def validate_physical_ranges(df: DataFrame) -> DataFrame:
     return df_clean
 
 
-# ---------------------------------------------------------------------------
+
 # 3. IQR Outlier Removal (pi-based multiplier)
-# ---------------------------------------------------------------------------
+
 
 def remove_outliers_iqr(
     df: DataFrame,
@@ -212,9 +212,9 @@ def remove_outliers_iqr(
     return df
 
 
-# ---------------------------------------------------------------------------
+
 # Full Cleaning Pipeline
-# ---------------------------------------------------------------------------
+
 
 def clean_data(df: DataFrame) -> DataFrame:
     """Execute the full Carina cleaning pipeline."""
