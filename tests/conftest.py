@@ -5,36 +5,63 @@ from __future__ import annotations
 import math
 from datetime import datetime
 
+"""# import pytest
+# from pyspark.sql import SparkSession
+# from pyspark.sql.types import (
+#     DoubleType,
+#     IntegerType,
+#     StructField,
+#     StructType,
+#     TimestampType,
+#     StringType,
+# )
+
+
+# @pytest.fixture(scope="session")
+# def spark():
+#     """Create a SparkSession for the test suite."""
+#     session = (
+#         SparkSession.builder
+#         .master("local[2]")
+#         .appName("Andromeda-Tests")
+#         .config("spark.sql.shuffle.partitions", "2")
+#         .config("spark.default.parallelism", "2")
+#         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+#         .config(
+#             "spark.sql.catalog.spark_catalog",
+#             "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+#         )
+#         .getOrCreate()
+#     )
+#     yield session
+#     session.stop()"""
 import pytest
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (
-    DoubleType,
-    IntegerType,
-    StructField,
-    StructType,
-    TimestampType,
-    StringType,
-)
+from delta import configure_spark_with_delta_pip
 
 
 @pytest.fixture(scope="session")
 def spark():
-    """Create a SparkSession for the test suite."""
-    session = (
+
+    builder = (
         SparkSession.builder
-        .master("local[2]")
-        .appName("Andromeda-Tests")
-        .config("spark.sql.shuffle.partitions", "2")
-        .config("spark.default.parallelism", "2")
-        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .master("local[*]")
+        .appName("pytest-spark")
+        .config(
+            "spark.sql.extensions",
+            "io.delta.sql.DeltaSparkSessionExtension"
+        )
         .config(
             "spark.sql.catalog.spark_catalog",
-            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog"
         )
-        .getOrCreate()
     )
-    yield session
-    session.stop()
+
+    spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+    yield spark
+
+    spark.stop()
 
 
 TURBINE_SCHEMA = StructType([
