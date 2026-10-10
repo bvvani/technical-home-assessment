@@ -8,21 +8,6 @@ Phase Codenames:
     Orion   -> Statistics
     Nova    -> Anomaly Detection
     Nebula  -> Storage
-
-This script orchestrates the full pipeline end-to-end:
-
-    1. Ingest raw CSV data from turbine sensor groups
-    2. Clean and validate the data
-    3. Compute summary statistics per turbine per time window
-    4. Detect anomalous turbine behaviour
-    5. Persist all artefacts
-
-Usage:
-
-    python main.py \
-        --data-dir data/raw \
-        --no-delta \
-        --output-path output
 """
 
 from __future__ import annotations
@@ -44,7 +29,6 @@ from src.nova_anomaly import (
 from src.nebula_storage import (
     ensure_schema_exists,
     store_all,
-    write_delta_path,
 )
 
 from config.pipeline_config import (
@@ -78,9 +62,7 @@ def run_pipeline(
     write_to_delta: bool = True,
     delta_output_path: Optional[str] = None,
 ) -> dict:
-    """
-    Execute the full pipeline.
-    """
+    """Execute the full pipeline."""
 
     start_time = time.time()
 
@@ -103,10 +85,7 @@ def run_pipeline(
 
     raw_count = raw_df.count()
 
-    logger.info(
-        "Raw records ingested: %d",
-        raw_count,
-    )
+    logger.info("Raw records ingested: %d", raw_count)
 
     # -----------------------------------------------------------------------
     # Phase 2 - Carina
@@ -118,10 +97,7 @@ def run_pipeline(
 
     cleaned_count = cleaned_df.count()
 
-    logger.info(
-        "Cleaned records: %d",
-        cleaned_count,
-    )
+    logger.info("Cleaned records: %d", cleaned_count)
 
     # -----------------------------------------------------------------------
     # Phase 3 - Orion
@@ -136,10 +112,7 @@ def run_pipeline(
 
     summary_count = summary_df.count()
 
-    logger.info(
-        "Summary rows: %d",
-        summary_count,
-    )
+    logger.info("Summary rows: %d", summary_count)
 
     # -----------------------------------------------------------------------
     # Phase 4 - Nova
@@ -153,10 +126,7 @@ def run_pipeline(
 
     anomaly_count = anomalies_df.count()
 
-    logger.info(
-        "Anomalies detected: %d",
-        anomaly_count,
-    )
+    logger.info("Anomalies detected: %d", anomaly_count)
 
     # -----------------------------------------------------------------------
     # Phase 5 - Nebula
@@ -167,6 +137,7 @@ def run_pipeline(
     outputs = {}
 
     if write_to_delta:
+
         ensure_schema_exists(
             spark=spark,
             catalog=catalog,
@@ -183,6 +154,7 @@ def run_pipeline(
         )
 
     elif delta_output_path:
+
         logger.info(
             "Writing pipeline outputs as CSV files to %s",
             delta_output_path,
@@ -215,38 +187,10 @@ def run_pipeline(
             "anomalies": f"{delta_output_path}/anomalies",
         }
 
-        logger.info(
-            "CSV output successfully written."
-        )
-
-       """ # write_delta_path(
-        #     raw_df,
-        #     f"{delta_output_path}/raw",
-        # )
-
-        # write_delta_path(
-        #     cleaned_df,
-        #     f"{delta_output_path}/cleaned",
-        # )
-
-        # write_delta_path(
-        #     summary_df,
-        #     f"{delta_output_path}/summary",
-        # )
-
-        # write_delta_path(
-        #     anomalies_df,
-        #     f"{delta_output_path}/anomalies",
-        # )
-
-        # outputs = {
-        #     "raw": f"{delta_output_path}/raw",
-        #     "cleaned": f"{delta_output_path}/cleaned",
-        #     "summary": f"{delta_output_path}/summary",
-        #     "anomalies": f"{delta_output_path}/anomalies",
-        # }"""
+        logger.info("CSV output successfully written.")
 
     else:
+
         logger.warning(
             "Storage skipped because Delta and output path are disabled."
         )
@@ -280,9 +224,7 @@ def run_pipeline(
 # ---------------------------------------------------------------------------
 
 def parse_args(args=None):
-    """
-    Parse command line arguments.
-    """
+    """Parse command line arguments."""
 
     parser = argparse.ArgumentParser(
         description="Andromeda Wind Pipeline",
@@ -313,13 +255,13 @@ def parse_args(args=None):
     parser.add_argument(
         "--no-delta",
         action="store_true",
-        help="Skip Unity Catalog Delta writes",
+        help="Skip Delta table writes",
     )
 
     parser.add_argument(
         "--output-path",
         default=None,
-        help="Write Delta output to local filesystem",
+        help="Directory to write CSV outputs",
     )
 
     return parser.parse_args(args)
@@ -330,9 +272,7 @@ def parse_args(args=None):
 # ---------------------------------------------------------------------------
 
 def main():
-    """
-    Application entry point.
-    """
+    """Application entry point."""
 
     args = parse_args()
 
