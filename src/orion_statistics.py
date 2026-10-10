@@ -1,16 +1,4 @@
-"""Orion Statistics Module - Summary statistics for the Andromeda Wind Pipeline.
-
-Computes per-turbine summary statistics over configurable time windows
-(default: 24 hours).
-
-Metrics computed per turbine per window:
-    - min, max, mean, std of power_output
-    - min, max, mean of wind_speed
-    - theoretical power
-    - capacity factor
-    - record count
-    - missing entries
-"""
+"""Orion Statistics Module - Summary statistics for the Andromeda Wind Pipeline."""
 
 from __future__ import annotations
 
@@ -22,7 +10,6 @@ from pyspark.sql import DataFrame
 from config.pipeline_config import (
     AGGREGATION_WINDOW_HOURS,
     AIR_DENSITY_KG_M3,
-    PI,
     SWEPT_AREA_M2,
     TURBINE_EFFICIENCY,
 )
@@ -34,9 +21,7 @@ def add_date_window(
     df: DataFrame,
     window_hours: int = AGGREGATION_WINDOW_HOURS,
 ) -> DataFrame:
-    """
-    Add window_start and window_end columns.
-    """
+    """Add window_start and window_end columns."""
 
     if window_hours == 24:
         return (
@@ -58,10 +43,7 @@ def add_date_window(
         df
         .withColumn(
             "_window",
-            F.window(
-                F.col("timestamp"),
-                window_spec
-            )
+            F.window(F.col("timestamp"), window_spec)
         )
         .withColumn(
             "window_start",
@@ -79,9 +61,7 @@ def compute_summary_statistics(
     df: DataFrame,
     window_hours: int = AGGREGATION_WINDOW_HOURS,
 ) -> DataFrame:
-    """
-    Compute per-turbine summary statistics.
-    """
+    """Compute per-turbine summary statistics."""
 
     logger.info(
         "Computing summary statistics (window=%s)",
@@ -120,8 +100,7 @@ def compute_summary_statistics(
             * F.lit(SWEPT_AREA_M2)
             * F.pow(F.col("wind_speed_mean"), 3)
             * F.lit(TURBINE_EFFICIENCY)
-        )
-        / F.lit(1_000_000)
+        ) / F.lit(1_000_000)
     )
 
     summary = summary.withColumn(
@@ -133,6 +112,14 @@ def compute_summary_statistics(
         ).otherwise(F.lit(0.0))
     )
 
-    expected_records = window_hours
+    summary = summary.withColumn(
+        "missing_entries",
+        F.lit(window_hours) - F.col("record_count")
+    )
 
-  
+    logger.info(
+        "Summary statistics computed: %d rows",
+        summary.count(),
+    )
+
+    return summary
