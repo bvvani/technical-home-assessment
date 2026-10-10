@@ -27,14 +27,6 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Verify Environment
-        run: |
-          echo "===== Python ====="
-          python --version
-
-          echo "===== Java ====="
-          java -version
-
       - name: Upgrade Pip
         run: |
           python -m pip install --upgrade pip
@@ -49,34 +41,6 @@ jobs:
           pip install --upgrade delta-spark
           pip install --upgrade pytest pytest-cov
 
-      - name: Verify Spark and Delta
-        run: |
-          python - <<'EOF'
-          from delta import configure_spark_with_delta_pip
-          from pyspark.sql import SparkSession
-
-          builder = (
-              SparkSession.builder
-              .master("local[*]")
-              .appName("delta-test")
-              .config(
-                  "spark.sql.extensions",
-                  "io.delta.sql.DeltaSparkSessionExtension"
-              )
-              .config(
-                  "spark.sql.catalog.spark_catalog",
-                  "org.apache.spark.sql.delta.catalog.DeltaCatalog"
-              )
-          )
-
-          spark = configure_spark_with_delta_pip(builder).getOrCreate()
-
-          print("Spark Version:", spark.version)
-          print("Delta Lake Configured Successfully")
-
-          spark.stop()
-          EOF
-
       - name: Run Unit Tests
         run: |
           pytest tests/ -v --tb=short
@@ -84,7 +48,11 @@ jobs:
       - name: Execute Main Pipeline
         run: |
           echo "Running main.py"
-          python main.py
+
+          python main.py \
+            --data-dir data/raw \
+            --no-delta \
+            --output-path output
 
       - name: Upload Artifacts
         if: always()
@@ -92,8 +60,8 @@ jobs:
         with:
           name: pipeline-output
           path: |
-            logs/**
             output/**
+            logs/**
           if-no-files-found: ignore
 
       - name: Pipeline Status
