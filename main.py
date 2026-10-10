@@ -183,26 +183,32 @@ def run_pipeline(
         )
 
     elif delta_output_path:
+            elif delta_output_path:
 
-        write_delta_path(
-            raw_df,
-            f"{delta_output_path}/raw",
+        logger.info(
+            "Writing pipeline outputs as CSV files to %s",
+            delta_output_path,
         )
 
-        write_delta_path(
-            cleaned_df,
-            f"{delta_output_path}/cleaned",
-        )
+        raw_df.write \
+            .mode("overwrite") \
+            .option("header", "true") \
+            .csv(f"{delta_output_path}/raw")
 
-        write_delta_path(
-            summary_df,
-            f"{delta_output_path}/summary",
-        )
+        cleaned_df.write \
+            .mode("overwrite") \
+            .option("header", "true") \
+            .csv(f"{delta_output_path}/cleaned")
 
-        write_delta_path(
-            anomalies_df,
-            f"{delta_output_path}/anomalies",
-        )
+        summary_df.write \
+            .mode("overwrite") \
+            .option("header", "true") \
+            .csv(f"{delta_output_path}/summary")
+
+        anomalies_df.write \
+            .mode("overwrite") \
+            .option("header", "true") \
+            .csv(f"{delta_output_path}/anomalies")
 
         outputs = {
             "raw": f"{delta_output_path}/raw",
@@ -210,6 +216,37 @@ def run_pipeline(
             "summary": f"{delta_output_path}/summary",
             "anomalies": f"{delta_output_path}/anomalies",
         }
+
+        logger.info(
+            "CSV output successfully written."
+        )
+
+       """ # write_delta_path(
+        #     raw_df,
+        #     f"{delta_output_path}/raw",
+        # )
+
+        # write_delta_path(
+        #     cleaned_df,
+        #     f"{delta_output_path}/cleaned",
+        # )
+
+        # write_delta_path(
+        #     summary_df,
+        #     f"{delta_output_path}/summary",
+        # )
+
+        # write_delta_path(
+        #     anomalies_df,
+        #     f"{delta_output_path}/anomalies",
+        # )
+
+        # outputs = {
+        #     "raw": f"{delta_output_path}/raw",
+        #     "cleaned": f"{delta_output_path}/cleaned",
+        #     "summary": f"{delta_output_path}/summary",
+        #     "anomalies": f"{delta_output_path}/anomalies",
+        # }"""
 
     else:
         logger.warning(
