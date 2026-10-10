@@ -83,13 +83,17 @@ def compute_summary_statistics(
             F.max("power_output").alias("power_max_mw"),
             F.avg("power_output").alias("power_mean_mw"),
             F.stddev("power_output").alias("power_std_mw"),
-
             F.min("wind_speed").alias("wind_speed_min"),
             F.max("wind_speed").alias("wind_speed_max"),
             F.avg("wind_speed").alias("wind_speed_mean"),
-
             F.count("*").alias("record_count"),
         )
+    )
+
+    # Fix floating-point precision issue
+    summary = summary.withColumn(
+        "power_mean_mw",
+        F.round(F.col("power_mean_mw"), 6)
     )
 
     summary = summary.withColumn(
