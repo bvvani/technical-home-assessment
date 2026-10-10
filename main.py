@@ -183,8 +183,6 @@ def run_pipeline(
         )
 
     elif delta_output_path:
-            elif delta_output_path:
-
         logger.info(
             "Writing pipeline outputs as CSV files to %s",
             delta_output_path,
