@@ -25,9 +25,9 @@ from config.pipeline_config import (
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
+
 # Schema / Catalog Initialisation
-# ---------------------------------------------------------------------------
+
 
 def ensure_schema_exists(
     spark: SparkSession,
@@ -48,9 +48,9 @@ def ensure_schema_exists(
     )
 
 
-# ---------------------------------------------------------------------------
+
 # Generic Delta Writers
-# ---------------------------------------------------------------------------
+
 
 def write_delta(
     df: DataFrame,
@@ -123,9 +123,9 @@ def write_delta_path(
     return path
 
 
-# ---------------------------------------------------------------------------
+
 # Pipeline-Specific Writers
-# ---------------------------------------------------------------------------
+
 
 def store_raw_data(
     df: DataFrame,
@@ -189,9 +189,9 @@ def store_anomalies(
     )
 
 
-# ---------------------------------------------------------------------------
+
 # Store Entire Pipeline Output
-# ---------------------------------------------------------------------------
+
 
 def store_all(
     raw_df: DataFrame,
