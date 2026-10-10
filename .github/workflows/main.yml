@@ -10,7 +10,7 @@ on:
 jobs:
   run-pipeline:
     name: Run Pipeline
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Repository
@@ -22,10 +22,18 @@ jobs:
           python-version: "3.11"
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 11
+          java-version: "17"
+
+      - name: Verify Environment
+        run: |
+          echo "Python Version:"
+          python --version
+
+          echo "Java Version:"
+          java -version
 
       - name: Install Dependencies
         run: |
@@ -39,15 +47,16 @@ jobs:
             pip install -e .
           fi
 
+      - name: Verify PySpark
+        run: |
+          pip show pyspark || true
+
       - name: Run Unit Tests
         run: |
-          if [ -d tests ]; then
-            pytest tests/ -v --tb=short
-          fi
+          pytest tests/ -v --tb=short
 
       - name: Execute Main Pipeline
         run: |
-          echo "Running Andromeda Pipeline..."
           python main.py
 
       - name: Upload Logs
@@ -63,5 +72,5 @@ jobs:
       - name: Pipeline Status
         if: always()
         run: |
-          echo "Pipeline execution completed successfully."
+          echo "Pipeline execution completed."
           echo "Branch: ${{ github.ref_name }}"
