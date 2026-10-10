@@ -45,23 +45,34 @@ jobs:
             pip install -r requirements.txt
           fi
 
-          pip install pyspark
-          pip install delta-spark
-          pip install pytest pytest-cov
+          pip install --upgrade pyspark
+          pip install --upgrade delta-spark
+          pip install --upgrade pytest pytest-cov
 
-      - name: Verify Spark
+      - name: Verify Spark and Delta
         run: |
-          python - <<EOF
+          python - <<'EOF'
+          from delta import configure_spark_with_delta_pip
           from pyspark.sql import SparkSession
 
-          spark = (
+          builder = (
               SparkSession.builder
               .master("local[*]")
-              .appName("github-action-test")
-              .getOrCreate()
+              .appName("delta-test")
+              .config(
+                  "spark.sql.extensions",
+                  "io.delta.sql.DeltaSparkSessionExtension"
+              )
+              .config(
+                  "spark.sql.catalog.spark_catalog",
+                  "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+              )
           )
 
+          spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
           print("Spark Version:", spark.version)
+          print("Delta Lake Configured Successfully")
 
           spark.stop()
           EOF
