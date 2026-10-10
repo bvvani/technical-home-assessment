@@ -1,1 +1,67 @@
+name: Andromeda Pipeline - Main Branch
 
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    name: Run Pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+          if [ -f setup.py ]; then
+            pip install -e .
+          fi
+
+      - name: Run Unit Tests
+        run: |
+          if [ -d tests ]; then
+            pytest tests/ -v --tb=short
+          fi
+
+      - name: Execute Main Pipeline
+        run: |
+          echo "Running Andromeda Pipeline..."
+          python main.py
+
+      - name: Upload Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-output
+          path: |
+            logs/
+            output/
+          if-no-files-found: ignore
+
+      - name: Pipeline Status
+        if: always()
+        run: |
+          echo "Pipeline execution completed successfully."
+          echo "Branch: ${{ github.ref_name }}"
